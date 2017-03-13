@@ -793,9 +793,13 @@ Use the following commands:
 
 `#` **`curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-$(uname -s)-$(uname -m) > /usr/local/bin/docker-compose`**
 
+If that command fails and you're on MacOS X (because the File System is
+read-only, then use the target /opt/local/sbin/docker-compose instead)
+
 `#` **`chmod +x /usr/local/bin/docker-compose`**
 
-Check that the binary works by displaying the revision:
+Check that the binary works by displaying the revision (providing you have
+/usr/local/bin in your path):
 
 `#` **`docker-compose --version`**
 ```
