@@ -23,6 +23,7 @@ umask 002 && openssl x509 -req -in srv/repo.csr \
    	-CAkey ca/ca.key \
    	-CAcreateserial \
    	-CAserial ca/ca.srl \
+    -days 365 \
 	-extensions v3_req -extfile /etc/pki/tls/openssl.cnf
 # Put the CA certificate on the web
 cp /home/pki/ca/ca.crt /var/www/html
