@@ -72,6 +72,10 @@ In order to append text to the file, the first `>` can be replaced with `>>`.
 
 If you prefer, you can edit the files using **vim** or **nano** text editors.
 
+## But I'm a poor lonesome Windows cowboy !
+
+Well in that case, first condolences, then read the fine document made by Michael Mayer at https://github.com/bcornec/Labs/blob/master/Docker/LabOnWindows.md to get help.
+
 # Environment setup
 Estimated time: 15 minutes
 
@@ -102,11 +106,11 @@ ENV https_proxy <HTTP_PROXY>
 
 ## Docker installation
 Docker is available externally from http://docs.docker.com/linux/step_one/ or using your distribution packages, or from github at https://github.com/docker/docker
-Version 1.12 is the current stable release. This lab requires at least version 1.7.
+Version 17.03 is the current stable release. This lab requires at least version 1.7.
 
 Ask to your instructor which Linux distribution will be used for the Lab (Ubuntu or RHEL). Then refer to the corresponding instructions below.
 
-Other distributions should be as easy to deal with once the same packages have been installed using the package manager as they should be available directly (Case of most non-commercial distributions such as Debian, Fedora, Mageia, OpenSuSE, ...). Follow the instructions from https://docs.docker.com/engine/installation/
+Other distributions should be as easy to deal with once the same packages have been installed using the package manager as they should be available directly (Case of most non-commercial distributions such as Debian, Fedora, Mageia, OpenSUSE, ...). Follow the instructions from https://docs.docker.com/engine/installation/
 
 ### Ubuntu installation
 If you work on an Ubuntu environment for the Lab, you may want to use apt to do the installation of Docker with all its dependencies. As Ubuntu provides an old version of Docker, we will use a PPA providing a more up to date version:
@@ -118,7 +122,7 @@ If you work on an Ubuntu environment for the Lab, you may want to use apt to do 
 `#` **`apt-get update`**
 
 `#` **`apt-get install lxc-docker`**
-```none
+```
 Reading package lists... Done
 Building dependency tree
 Reading state information... Done
@@ -161,7 +165,7 @@ Docker is providing deb packages to help you install the Engine on your Debian d
 
 `#` **`apt-get install docker-engine`**
 
-This procedure shoudl also work for Ubuntu based distributions.
+This procedure should also work for Ubuntu based distributions.
 
 ### RHEL installation
 
@@ -1047,7 +1051,7 @@ We extracted lots of ideas from it to lead you towards a first understanding of 
 
 ## Installing Docker Swarm
 
-If you have a version prior to 1.12, then you'll need to install Docker Engine 1.12+ as the rest of this lab requires that version.
+If you have a version prior to 1.13, then you'll need to install Docker Engine 1.13+ as the rest of this lab requires that version.
 
 ## Installing on RHEL 7
 
@@ -1116,7 +1120,7 @@ I recommend that you run the following commands on **all** nodes to avoid firewa
 
 `#` **`firewall-cmd --add-port=4789/udp --permanent`**
 
-But you will probably have many issues with firewalld later on anyway, so it's worth disabling it now to avoid solving unrelated issues and integration aspects with Docker iptables management (been there done that for hours !). And believe me, I don't like that :-( (so in our Lab you have peripheral firewall !)
+But you will probably have many issues with firewalld later on anyway, so it's worth disabling it now on all nodes to avoid solving unrelated issues and integration aspects with Docker iptables management (been there done that for hours !). And believe me, I don't like that :-( (so in our Lab we have peripheral firewall !). For that use:
 
 `#` **`systemctl stop firewalld`**
 
@@ -1217,31 +1221,26 @@ Download the CA from the registry web site:
 
 `#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /etc/pki/ca-trust/source/anchors/ca-registry.crt`**
 
-and do the folowing commands :
-
-### CentOS/RHEL
+and do the following commands :
 
 ```
 export DOMAIN_NAME=<my-registry-fqdn>
 openssl s_client -connect ${DOMAIN_NAME}:5500 -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM | tee /etc/pki/ca-trust/source/anchors/$DOMAIN_NAME.crt
+```
+### CentOS/RHEL
+```
 update-ca-trust
 systemctl restart docker
 ```
-### Ubuntu
-
+### Ubuntu/Debian
 ```
-export DOMAIN_NAME=<my-registry-fqdn>
-openssl s_client -connect ${DOMAIN_NAME}:5500 -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM | tee /usr/local/share/ca-certificates/$DOMAIN_NAME.crt
 update-ca-certificates
 service docker restart
 ```
 
-<!--
 Check that the registry runs as expected:
-`#` **`curl -L http://localhost:5500/v2`**
+`#` **`curl -L http://<my-registry-fqdn>:5500/v2`**
 {}
-
--->
 
 Of course, each node needs to be configured identically.
 
@@ -1307,7 +1306,7 @@ Now you can create a Docker volume that will be used by the containers launched 
 `#` **`docker volume ls`**
 
 BTW, you can see that Docker already transparently created many more volumes for you.
-Note thtat you have to do it on all the engines of your Swarm cluster for this method to work.
+Note that you have to do it on all the engines of your Swarm cluster for this method to work.
 
 Now you can start mariadb as a service using the volume just created:
 
@@ -1321,8 +1320,7 @@ Now you can start mariadb as a service using the volume just created:
 -->
 `#` **`docker service create --name=mydbsvc --mount=type=volume,volume-driver=local,src=dbvol,dst=/var/lib/mysql --env MYSQL_ROOT_PASSWORD=password --env MYSQL_DATABASE=owncloud --env MYSQL_USER=owncloud --env MYSQL_PASSWORD=owncloudpwd -p 3306:3306 mariadb`**
 
-Is that working as expected ? It's still pretty difficult in Swarm mode to get logs for a failing service. Docker is aware of that and working on it for 1.13. Cf: https://github.com/docker/docker/issues/26083
-Tips are use docker service ps <svc_id> to find on which host run the service and then docker exec/logs on that host e.g. Also think to the /var/log/messages log file on your host.
+Is that working as expected ? If you use Docker 17.03+ you should have the docker service logs command now to help you diagnose your issue. If not, then tip is to use docker service ps <svc_id> to find on which host runs the service and then docker exec/logs on that host e.g. Also think to the /var/log/messages log file on your host.
 
 Can you have access to the database with the mysql command from your host (install the command if you need it) ? Check that the volume is mounted correctly in the container. Check that you can reach the mysql daemon from any host in the cluster.
 
@@ -1341,7 +1339,7 @@ MariaDB hint:
 
 Once all this is solved, you can try dealing with the web frontend. Adopt a similar approach (NFS volume and service). Check that the communication between owncloud and the DB works fine.
 
-You may be affected as I as by remaining bugs such as https://github.com/docker/docker/issues/20486 or https://github.com/docker/docker/issues/25981, especially mixing tests with docker-compose and swarm. For me, the only way to turn around them was to reboot the full cluster completely.
+You may be affected as myself by remaining bugs such as https://github.com/docker/docker/issues/20486 or https://github.com/docker/docker/issues/25981, especially mixing tests with docker-compose and swarm. For me, the only way to turn around them was to reboot the full cluster completely.
 
 Examples:
 
@@ -1403,7 +1401,7 @@ Let's explain first the application and its goal.
 ## Objectives
 
 In this section, we will create a promotional lottery for an e-commerce site.
-All the software components are provided, you'll "just" have perform a partial containerzation of the service.
+All the software components are provided, you'll "just" have to perform a partial containerzation of the service.
 
 As the setup takes some time, we'll start with the instructions and then you'll have time to read the explanations.
 
@@ -1413,16 +1411,14 @@ First have access to the application we developed for this.
 
 `#` **`git clone https://github.com/bcornec/openstack_lab.git`**
 
-`#` **`git checkout cloudnative`**
-
 `#` **`cd cloud_native_app`**
 
 As you can see in the openstack_lab directory created, the same application can be used for a Docker or an OpenStack usage (or combining them).
-The application is still a WIP, so don't worry with all the additional files and directories for now. Upstream is at https://github.com/uggla/openstack_lab.git
+The application is still a WIP, so don't worry with all the additional files and directories for now. Upstream is at https://github.com/uggla/openstack_lab.git alogside its documentation.
 
 We need first to run the application locally using the compose file, in order to create all the Docker images and to upload them into the registry.
 
-`#` **`docker-compose up -d`**
+`#` **`./docker_services.sh`**
 
 Drink a coffee, it's well deserved at that point, the composition takes a bit of time. Or stay looking at it to observe closely the magic of Docker automation ;-)
 Please start reading the following explanations in or to understand what we're building for you here.
@@ -1440,15 +1436,9 @@ That application is made of one Web page with 5 parts/micro-services: I, S, B, W
 
 Each part of the web page is implemented as a micro-service. So the application supports nicely the death of any one of the 5 micro-services. The page is still displayed anyway, printing N/A when a micro-service is unavailable. In case of insufficient resources (as with the slow W micro-service), we will look at how to scale that application.
 
-Once the docker-compose is done, you'll have to tag all images and push them into the registry. As docker-compose doesn't support services in this version yet, we've made a script to ease the creation of the tags, pushing the images into the registry and creating the services for you.
+Please have a look at the `docker_services.sh` script and adapt what needs to be changed for your environment at the start in case of issues.
 
-Please have a look at the `docker_services.sh` script and adapt what needs to be changed for your environment at the start.
-
-Before launching the script, stop all the containers launched with the docker-compose step.
-
-Once done, you can run the script to deploy the application using Docker services
-
-`#` **`./docker_services.sh`**
+At the end of the script you should get a list of services running similar to the one below:
 ```
 ID            NAME         REPLICAS  IMAGE                                                 COMMAND
 1empjc9o6wwu  w            1/1       lab7-2.labossi.hpintelco.org:5500/cloudnativeapp_w
@@ -1467,7 +1457,7 @@ cn81a9a5j8yi  w1           1/1       lab7-2.labossi.hpintelco.org:5500/cloudnati
 e6c6ypgcxdy2  p            1/1       lab7-2.labossi.hpintelco.org:5500/cloudnativeapp_p
 ```
 
-In order to use the application you'll now have to connect to http://c6.labossi.hpintelco.org/
+In order to use the application you'll now have to connect to your system hosting th web application (in our case http://c6.labossi.hpintelco.org/)
 
 You should see a message in your browser saying:
 ```
@@ -1483,9 +1473,6 @@ Check the micro-service behavior by stopping the 'i' micro-service, and then the
 Try to make more connections. What is the problem encountered.
 Which micro-service is causing the issue.
 Scale that micro-service to solve the problem.
-
-5.Update the config.js file to allow access to the public IP.
-6.Eventually update swift config to reach swift.
 
 This is the end of this lab for now, we hope you enjoyed it.
 
