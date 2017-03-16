@@ -148,6 +148,21 @@ Adding group docker' (GID 111) ...
 Done.
 [...]
 ```
+
+### Debian installation
+
+Docker is providing deb packages to help you install the Engine on your Debian distribution:
+
+`#` **`wget -O- https://apt.dockerproject.org/gpg | apt-key add -`**
+
+`#` **`echo deb https://apt.dockerproject.org/repo debian-stretch main > /etc/apt/sources.list.d/Docker.list`**
+
+`#` **`apt-get update`**
+
+`#` **`apt-get install docker-engine`**
+
+This procedure shoudl also work for Ubuntu based distributions.
+
 ### RHEL installation
 
 If you work on a RHEL 7 environment for the Lab, you may want to use yum to do the installation of Docker with all its dependencies. Add the repo provided by the Docker project (which is requiring 7.2 at least, but not by CentOS if you use that variant):
