@@ -692,7 +692,7 @@ CONTAINER ID        IMAGE               COMMAND                CREATED          
 Now that we have exposed the port, we're able to launch our container in daemon mode (-d) and redirect the local port 80 to the container port 80. Our web server is listening is listening on port 80 in the container. Repeat the earlier attempt to connect to the web server in the container. You should see a CentOS based page on your host distribution.
 
 It's now time to add some content to our web server !
-Modify again the Docker file to add owncloud to our image:
+Modify again the Dockerfile to add owncloud to our image:
 
 `#` **`cat >> Dockerfile << EOF`**
 ```
@@ -768,11 +768,11 @@ CONTAINER ID        IMAGE               COMMAND                CREATED          
 
 `#` **`docker run -d -p 80:80 -v /data:/data owncloud:latest`**
 
-Now reload the owncloud congifuration page in your browser, but this time configure the data folder as in the following screen shot:
+Now reload the owncloud configuration page in your browser, but this time configure the data folder as in the following screen shot:
 
 ![Owncloud Setup](/Docker/img/owncloud.png)
 
-If you encounter issues you need to adapt your Dockerfile so that the apache user is allowed to write on to the /data directory. Your current Dockerfile should look like this at that point:
+If you encounter issues you need to adapt your environment so that the apache user is allowed to write on to the /data directory. Your current Dockerfile should look like this at that point:
 
 `#` **`cat Dockerfile`**
 ```
@@ -1005,7 +1005,7 @@ done
 ```
 
 This will take around 5mn. You can list the machines installed with the command:
-`docker machine ls`
+`docker-machine ls`
 
 To connect to a server you can use:
 `docker-machine ssh <machine_name>`
