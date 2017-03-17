@@ -1200,18 +1200,56 @@ In order to help visualize the state of the Swarm cluster you can use the visual
 And then connect your browser to it on port 8080. You should see something similar to the below image:
 ![Swarm Visualizer](/Docker/img/visualizer.png)
 
-Now let's put on our cluster our application. Note that before version 1.13, docker-compose doesn't support the notion of service, so can't be used in swarm mode. Would be very handy, but you'll have to wait till early february/march 2017 to have that !
-Start with the owncloud_web image as a base for your service.
-
-`#` **`docker service create --name owncloudsvc -p 8000:80 owncloud_web`**
+Now let's put on our cluster our application. With recent versions of docker-compose, there is the new notion of stack to orchestrate services. Adapt your docker-compose to use it following the below model:
 ```
-92f1q6wzr8jb5nctzu06d2cd1
+version: '3'
+services:
+  web:
+    build: .
+    volumes:
+      - /data/owncloud:/data/owncloud
+      - /data/config:/var/www/html/owncloud/config
+    ports:
+      - "8000:80"
+    links:
+      - db:mariadb
+    networks:
+      oclan:
+  db:
+    image: mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=owncloud
+      - MYSQL_USER=owncloud
+      - MYSQL_PASSWORD=owncloudpwd
+    volumes:
+      - /data/db:/var/lib/mysql
+    networks:
+      oclan:
+        aliases:
+          - db
+networks:
+    oclan:
+        driver: overlay
 ```
-You may have some problems with this. Try to understand what happens and solve
-your issues. How many replicas are working ? Where are the images to use ? Which node can use them ?
-Hint: use the command `docker service ps` to help diagnose.
 
-So you will need to use a private registry here to help solving that.
+Compared to the v2 file, the main change is that you're now defining in it your network to allow communication between containers
+
+Now start your stack:
+
+`#` **`docker stack deploy -c docker-compose-v3.yml oc`**
+```
+Ignoring unsupported options: build, links
+
+Creating service oc_web
+Creating service oc_db
+```
+You may have some problems with this. Try to understand what happens and solve your issues. How many replicas are working ? Where are the images to use ? Which node can use them ?
+Hint: use the command `docker stack services oc` to help diagnose. And as usual talk to your instructor !
+
+So you will need to use a private registry here to help solving that issue.
 
 We have deployed a Docker registry for you, available from a URL that will be provided by the instructor.
 (If you use the internal HPE Lab, then try lab7-2.labossi.hpintelco.org:5500 - If you want to create your own, use our scripts at https://github.com/bcornec/Labs/tree/master/Docker/registry)
@@ -1254,27 +1292,7 @@ And then you can push that image into our registry so it's available to other en
 `#` **`docker push ${DOMAIN_NAME}:5500/owncloud_web`**
 
 Do the same with the mariadb service that you create afterwards following the same approach.
-Look at the status of both services. Why do you have issues with the mariadb service (at least ;-) ? How can you solve that.
-
-So yes we have issues with data management (not a surprise after our first part no ?) and also with environment variables to configure the mariadb service.
-
-In order to solve the environment variables aspect, you can use the --env option on the CLI.
-<!--
-
-`#` **`mkdir -p ../mydb`**
-`#` **`cd ../mydb`**
-
-Edit the Dockerfile so it looks like:
-
-`#` **`cat Dockerfile`**
-```
-FROM mariadb
-ENV MYSQL_ROOT_PASSWORD=password
-ENV MYSQL_DATABASE=owncloud
-ENV MYSQL_USER=owncloud
-ENV MYSQL_PASSWORD=owncloudpwd
-```
--->
+Look at your stack status. Is everything working fine or not ? What happens if you kill the httpd process ? the mysql process ? Explain what is happening.
 
 Now for the storage it's more difficult as the volumes you want to mount should be, as the images previously, available on all engines so each container created on it can use these data. One way to solve this for the mariadb image is to use an NFS exported directory from your first node.
 Let's configure NFS on the first machine (10.11.51.136 in my case):
@@ -1299,28 +1317,63 @@ Edit the exports file so it looks like:
 
 Check on another node that your NFS setup is correct.
 
-Now you can create a Docker volume that will be used by the containers launched with a service:
+Now you can create a Docker volume that will be used by the containers launched with a service, by amending your docker-compose file which should now look like this:
 
-`#` **`docker volume create --driver local --opt type=nfs --opt o=addr=10.11.51.136,rw --opt device=:/data/db --name dbvol`**
+```
+version: '3'
+services:
+  web:
+    build: .
+    image: lab7-2.labossi.hpintelco.org:5500/owncloud_web
+    volumes:
+      - /data/owncloud:/data/owncloud
+      - /data/config:/var/www/html/owncloud/config
+    ports:
+      - "8000:80"
+    links:
+      - db:mariadb
+    networks:
+      oclan:
+  db:
+    image: mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=owncloud
+      - MYSQL_USER=owncloud
+      - MYSQL_PASSWORD=owncloudpwd
+    volumes:
+      - dbvol:/var/lib/mysql
+    networks:
+      oclan:
+        aliases:
+          - db
+networks:
+    oclan:
+        driver: overlay
 
+volumes:
+  dbvol:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.11.51.136,rw
+      device: ":/data/db"
+```
+
+Restart your stack:
+`#` **`docker stack rm oc`**
+
+`#` **`docker stack deploy -c docker-compose-v3.yml oc`**
+
+Check they have now been created with:
 `#` **`docker volume ls`**
 
 BTW, you can see that Docker already transparently created many more volumes for you.
 Note that you have to do it on all the engines of your Swarm cluster for this method to work.
 
-Now you can start mariadb as a service using the volume just created:
-
-<!--
-`#` **`docker tag mydb lab7-2.labossi.hpintelco.org:5500/mydb`**
-
-`#` **`docker push lab7-2.labossi.hpintelco.org:5500/mydb`**
-
-`#` **`docker service create --name=mydbsvc --mount=type=volume,volume-driver=local,src=dbvol,dst=/var/lib/mysql lab7-2.labossi.hpintelco.org:5500/mydb`**
-
--->
-`#` **`docker service create --name=mydbsvc --mount=type=volume,volume-driver=local,src=dbvol,dst=/var/lib/mysql --env MYSQL_ROOT_PASSWORD=password --env MYSQL_DATABASE=owncloud --env MYSQL_USER=owncloud --env MYSQL_PASSWORD=owncloudpwd -p 3306:3306 mariadb`**
-
-Is that working as expected ? If you use Docker 17.03+ you should have the docker service logs command now to help you diagnose your issue. If not, then tip is to use docker service ps <svc_id> to find on which host runs the service and then docker exec/logs on that host e.g. Also think to the /var/log/messages log file on your host.
+Is that now working as expected ? If you use Docker 17.03+ you should have the docker service logs command now to help you diagnose your issue. If not, then tip is to use docker service ps <svc_id> to find on which host runs the service and then docker exec/logs on that host e.g. Also think to the /var/log/messages log file on your host.
 
 Can you have access to the database with the mysql command from your host (install the command if you need it) ? Check that the volume is mounted correctly in the container. Check that you can reach the mysql daemon from any host in the cluster.
 
@@ -1341,56 +1394,13 @@ Once all this is solved, you can try dealing with the web frontend. Adopt a simi
 
 You may be affected as myself by remaining bugs such as https://github.com/docker/docker/issues/20486 or https://github.com/docker/docker/issues/25981, especially mixing tests with docker-compose and swarm. For me, the only way to turn around them was to reboot the full cluster completely.
 
-Examples:
-
-`#` **`for i in c6 c7 c8 c10 c11; do ssh $i docker volume create --driver local --opt type=nfs --opt o=addr=10.11.51.136,rw --opt device=:/data/owncloud --name ownvol ; done`**
-
-`#` **`for i in c6 c7 c8 c10 c11; do ssh $i docker volume create --driver local --opt type=nfs --opt o=addr=10.11.51.136,rw --opt device=:/data/config --name cfgvol ; done`**
-
-`#` **`docker service create --name=myownsvc --mount=type=volume,volume-driver=local,src=ownvol,dst=/data/owncloud --mount=type=volume,volume-driver=local,src=cfgvol,dst=/data/config -p 8000:80 lab7-2.labossi.hpintelco.org:5500/owncloud_web`**
-
-<!--
-Remains an issue:
-An exception occurred while executing 'SELECT "configvalue", "appid" FROM "oc_appconfig" WHERE "configkey" = ?' with params ["enabled"]: SQLSTATE[HY000]: General error: 1 no such table: oc_appconfig
-while doing
-mysql> SELECT configvalue,appid FROM oc_appconfig WHERE configkey="enabled";
-+-------------+-------------------+
-| configvalue | appid             |
-+-------------+-------------------+
-| yes         | activity          |
-| yes         | calendar          |
-| yes         | contacts          |
-| yes         | documents         |
-| yes         | files             |
-| yes         | files_pdfviewer   |
-| yes         | files_sharing     |
-| yes         | files_texteditor  |
-| yes         | files_trashbin    |
-| yes         | files_versions    |
-| yes         | files_videoviewer |
-| yes         | firstrunwizard    |
-| yes         | gallery           |
-| yes         | search_lucene     |
-| yes         | templateeditor    |
-| yes         | updater           |
-+-------------+-------------------+
-16 rows in set (0.00 sec)
-
-mysql> quit
-
-inside the container works :-(
-and compose works as well.
--->
-
-Observe what happens when you restart the Docker service on a node hosting one of the 2 services.
+Observe what happens when you restart a Docker service on a node hosting one of the 2 services.
 
 We can scale out such a stateful application (while less interesting than a cloud native one) with many owncloud instances to support many users and spread the load across the Swarm cluster.
 
 PLEASE, stop your services to avoid ports conflicts with the next part.
 
-`#` **`docker service rm mydbsvc`**
-
-`#` **`docker service rm myownsvc`**
+`#` **`docker stack rm oc`**
 
 Now we'll see the adequation of Docker Swarm and Cloud Native applications.
 
