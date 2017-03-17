@@ -1424,7 +1424,7 @@ First have access to the application we developed for this.
 `#` **`cd cloud_native_app`**
 
 As you can see in the openstack_lab directory created, the same application can be used for a Docker or an OpenStack usage (or combining them).
-The application is still a WIP, so don't worry with all the additional files and directories for now. Upstream is at https://github.com/uggla/openstack_lab.git alogside its documentation.
+The application is still a WIP, so don't worry with all the additional files and directories for now. Upstream is at https://github.com/uggla/openstack_lab.git alongside its documentation.
 
 We need first to run the application locally using the compose file, in order to create all the Docker images and to upload them into the registry.
 
