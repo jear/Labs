@@ -1375,7 +1375,18 @@ Note that you have to do it on all the engines of your Swarm cluster for this me
 
 Is that now working as expected ? If you use Docker 17.03+ you should have the docker service logs command now to help you diagnose your issue. If not, then tip is to use docker service ps <svc_id> to find on which host runs the service and then docker exec/logs on that host e.g. Also think to the /var/log/messages log file on your host.
 
-Can you have access to the database with the mysql command from your host (install the command if you need it) ? Check that the volume is mounted correctly in the container. Check that you can reach the mysql daemon from any host in the cluster.
+Can you have access to the database with the mysql command from your host (install the command if you need it) ? Check that the volume is mounted correctly in the container. Check that you can reach the mysql daemon from any host in the cluster. For mysql to work correctly using an NFS exported directory for its files, you will need to have the rpc.statd daemon running on all nodes of your cluster.
+Hint:
+
+`#` **`yum install -y nfs-utils`**
+
+`#` **`systemctl start rpc-statd`** # CentOS7
+
+or
+
+`#` **`apt-get install -y nfs-common`**
+
+`#` **`service rpc.statd start`** # Ubuntu
 
 Create a temporary table in the owncloud database to check and then relaunch the service to verify the persistency of the DB.
 MariaDB hint:
