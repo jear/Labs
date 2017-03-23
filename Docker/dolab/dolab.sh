@@ -49,7 +49,7 @@ else
 fi
 
 # Checking tool deps
-for tool in ssh sshpass pdsh doctl jq
+for tool in ssh doctl jq
 do
 	echo "Checking $tool"
 	which $tool || exit 1
