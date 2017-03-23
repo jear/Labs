@@ -1277,8 +1277,8 @@ service docker restart
 ```
 
 Check that the registry runs as expected:
-`#` **`curl -L http://<my-registry-fqdn>:5500/v2`**
-{}
+`#` **`curl -L https://<my-registry-fqdn>:5500/v2`**
+`{}`
 
 Of course, each node needs to be configured identically.
 
@@ -1301,7 +1301,7 @@ Let's configure NFS on the first machine (10.11.51.136 in my case):
 
 or
 
-`#` **`apt-get install -y nfs-common`** # Ubuntu
+`#` **`apt-get install -y nfs-server`** # Ubuntu
 
 Edit the exports file so it looks like:
 
