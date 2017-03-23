@@ -1,0 +1,1 @@
+sh -x ./dolab.sh 2 1gb nene
