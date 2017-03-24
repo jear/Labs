@@ -1273,7 +1273,6 @@ We have deployed a Docker registry for you, available from a URL that will be pr
 You need to add the CA public certificate made on the registry to trust it.
 Download the CA from the registry web site:
 
-```
 ### CentOS 7
 
 `#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /etc/pki/ca-trust/source/anchors/ca-registry.crt`**
@@ -1282,6 +1281,7 @@ Download the CA from the registry web site:
 update-ca-trust
 systemctl restart docker
 ```
+
 ### Ubuntu/Debian
 
 `#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /usr/local/share/ca-certificates/ca-registry.crt`**
