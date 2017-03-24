@@ -18,7 +18,7 @@ Table of Contents
       * [Proxy consideration](#proxy-consideration)
       * [Docker installation](#docker-installation)
          * [Ubuntu installation](#ubuntu-installation)
-         * [RHEL installation](#rhel-installation)
+         * [CentOS installation](#centos-installation)
          * [Check installation](#check-installation)
    * [Using Docker](#using-docker)
       * [The first container](#the-first-container)
@@ -31,10 +31,10 @@ Table of Contents
    * [Using docker-machine to create Docker hosts](#using-docker-machine-to-create-docker-hosts)
    * [Using Docker Swarm](#using-docker-swarm)
       * [Installing Docker Swarm](#installing-docker-swarm)
-      * [Installing on RHEL 7](#installing-on-rhel-7)
+      * [Installing on CentOS 7](#installing-on-centos-7)
       * [Installing the engine in the Cloud](#installing-the-engine-in-the-cloud)
       * [Using Docker Swarm to make our configuration available and scalable](#using-docker-swarm-to-make-our-configuration-available-and-scalable)
-         * [CentOS/RHEL](#centosrhel)
+         * [CentOS 7](#centos-7)
          * [Ubuntu](#ubuntu)
    * [Deploy a cloud native application.](#deploy-a-cloud-native-application)
       * [Objectives](#objectives)
@@ -83,7 +83,7 @@ Estimated time: 15 minutes
 
 This lab is usually run in our environment that has a direct access to the Internet. If you want to run this lab on your site behind a corporate proxy, you will have to configure your Linux distribution and Docker to access the Internet via your proxy.
 
-The following instruction are available for a RHEL/Centos 7 distribution, because instructions on the Docker part are systemd based.
+The following instruction are available for a Centos 7 distribution, because instructions on the Docker part are systemd based.
 
 
  1. Get the proxy IP and port.
@@ -108,7 +108,7 @@ ENV https_proxy <HTTP_PROXY>
 Docker is available externally from http://docs.docker.com/linux/step_one/ or using your distribution packages, or from github at https://github.com/docker/docker
 Version 17.03 is the current stable release. This lab requires at least version 1.7.
 
-Ask to your instructor which Linux distribution will be used for the Lab (Ubuntu or RHEL). Then refer to the corresponding instructions below.
+Ask to your instructor which Linux distribution will be used for the Lab (Ubuntu or CentOS). Then refer to the corresponding instructions below.
 
 Other distributions should be as easy to deal with once the same packages have been installed using the package manager as they should be available directly (Case of most non-commercial distributions such as Debian, Fedora, Mageia, OpenSUSE, ...). Follow the instructions from https://docs.docker.com/engine/installation/
 
@@ -167,9 +167,9 @@ Docker is providing deb packages to help you install the Engine on your Debian d
 
 This procedure should also work for Ubuntu based distributions.
 
-### RHEL installation
+### CentOS installation
 
-If you work on a RHEL 7 environment for the Lab, you may want to use yum to do the installation of Docker with all its dependencies. Add the repo provided by the Docker project (which is requiring 7.2 at least, but not by CentOS if you use that variant):
+If you work on a CentOS 7 environment for the Lab, you may want to use yum to do the installation of Docker with all its dependencies. Add the repo provided by the Docker project (which is requiring 7.2 at least, but not by CentOS if you use that variant):
 
 `#` **`cat > /etc/yum.repos.d/docker.repo << EOF`**
 ```none
@@ -423,7 +423,7 @@ Complete!
 ```
 Linux ad9b474525d0 3.16.0-41-generic #57~14.04.1-Ubuntu SMP Thu Jun 18 18:01:13 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
 ```
-If you're on a RHEL distribution it will rather be:
+If you're on a CentOS distribution it will rather be:
 ```
 Linux ad9b474525d0 3.10.0-327.el7.x86_64 #1 SMP Thu Oct 29 17:29:29 EDT 2015 x86_64 x86_64 x86_64 GNU/Linux
 ```
@@ -680,7 +680,7 @@ httpd: Could not reliably determine the server's fully qualified domain name, us
 3. Try to adapt the Dockerfile to solve that issue. **Discuss with your trainer if you're stuck !**
 
 `#` **`perl -pi -e 's|D httpd|D /usr/sbin/apachectl -DFOREGROUND -k start|' Dockerfile`**
-(This magic command replaces the launch of the httpd command by the apachectl one with the right options. If you are using RHEL 7 as the host OS, you will have to install perl via yum).
+(This magic command replaces the launch of the httpd command by the apachectl one with the right options. If you are using CentOS 7 as the host OS, you will have to install perl via yum).
 
 1. Try to use a browser (you may want to install lynx) to connect to your web server. Can you do it ?
 2. Which IP address do you point to ? You can use `docker exec` to get the IP address for the container.
@@ -1053,9 +1053,9 @@ We extracted lots of ideas from it to lead you towards a first understanding of 
 
 If you have a version prior to 1.13, then you'll need to install Docker Engine 1.13+ as the rest of this lab requires that version.
 
-## Installing on RHEL 7
+## Installing on CentOS 7
 
-On CentOS/RHEL 7 just add the repo file mentioned earlier in this Lab to get it.
+On CentOS 7 just add the repo file mentioned earlier in this Lab to get it.
 
 <!--
 ## Installing on Ubuntu
@@ -1274,15 +1274,19 @@ You need to add the CA public certificate made on the registry to trust it.
 Download the CA from the registry web site:
 
 ```
-### CentOS/RHEL
-```
+### CentOS 7
+
 `#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /etc/pki/ca-trust/source/anchors/ca-registry.crt`**
+
+```
 update-ca-trust
 systemctl restart docker
 ```
 ### Ubuntu/Debian
-```
+
 `#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /usr/local/share/ca-certificates/ca-registry.crt`**
+
+```
 update-ca-certificates
 service docker restart
 ```
