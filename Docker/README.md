@@ -1127,6 +1127,10 @@ I recommend that you run the following commands on **all** nodes to avoid firewa
 But you will probably have many issues with firewalld later on anyway, so it's worth disabling it now on all nodes to avoid solving unrelated issues and integration aspects with Docker iptables management (been there done that for hours !). And believe me, I don't like that :-( (so in our Lab we have peripheral firewall !). For that use:
 
 `#` **`systemctl stop firewalld`**
+`#` **`systemctl restart docker`**
+
+This previous command re-establish the NAT rules set up by Docker and that
+have been reset just previously.
 
 ### Configuring firewall on Ubuntu
 
@@ -1269,21 +1273,16 @@ We have deployed a Docker registry for you, available from a URL that will be pr
 You need to add the CA public certificate made on the registry to trust it.
 Download the CA from the registry web site:
 
-`#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /etc/pki/ca-trust/source/anchors/ca-registry.crt`**
-
-and do the following commands :
-
-```
-export DOMAIN_NAME=<my-registry-fqdn>
-openssl s_client -connect ${DOMAIN_NAME}:5500 -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM | tee /etc/pki/ca-trust/source/anchors/$DOMAIN_NAME.crt
 ```
 ### CentOS/RHEL
 ```
+`#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /etc/pki/ca-trust/source/anchors/ca-registry.crt`**
 update-ca-trust
 systemctl restart docker
 ```
 ### Ubuntu/Debian
 ```
+`#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /usr/local/share/ca-certificates/ca-registry.crt`**
 update-ca-certificates
 service docker restart
 ```
