@@ -1108,9 +1108,9 @@ Check what you can see on each node. Also look at the output of the `docker info
 
 If you have problems with error messages like "Error response from daemon: Timeout was reached before node was joined." then you firewall may be blocking the ports that Docker Swarm uses. If you think this is the case, you may have firewalling issues ;-)
 
-### On CentOS7
+### Configuring firewall on CentOS7
 
-look at https://www.digitalocean.com/community/tutorials/how-to-configure-the-Linux-firewall-for-Docker-swarm-on-centos-7
+Look at https://www.digitalocean.com/community/tutorials/how-to-configure-the-linux-firewall-for-docker-swarm-on-centos-7
 
 I recommend that you run the following commands on **all** nodes to avoid firewalling issue in the rest of the Lab:
 
@@ -1128,14 +1128,13 @@ But you will probably have many issues with firewalld later on anyway, so it's w
 
 `#` **`systemctl stop firewalld`**
 
-### On Ubuntu
+### Configuring firewall on Ubuntu
 
-I recommend that you run the following commands on **all** nodes to avoid firewalling issue in the rest of the Lab:
+I recommend that you run the following command on **all** nodes to avoid firewalling issue in the rest of the Lab:
 
 `#` **`ufw disable`**
 
-
-
+Back to out normal program now !
 
 Swarm has the notion of worker (hosting containers), manager (able to be also
 a worker and being a backup leader) and Leader (manager being in charge of the
