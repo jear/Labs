@@ -1106,7 +1106,11 @@ d8dfb2e8qd3h703pw43o5r88f    c10.labossi.hpintelco.org  Ready   Active
 
 Check what you can see on each node. Also look at the output of the `docker info` command.
 
-If you have problems with error messages like "Error response from daemon: Timeout was reached before node was joined." then you firewall may be blocking the ports that Docker Swarm uses. If you think this is the case, look at https://www.digitalocean.com/community/tutorials/how-to-configure-the-Linux-firewall-for-Docker-swarm-on-centos-7
+If you have problems with error messages like "Error response from daemon: Timeout was reached before node was joined." then you firewall may be blocking the ports that Docker Swarm uses. If you think this is the case, you may have firewalling issues ;-)
+
+### On CentOS7
+
+look at https://www.digitalocean.com/community/tutorials/how-to-configure-the-Linux-firewall-for-Docker-swarm-on-centos-7
 
 I recommend that you run the following commands on **all** nodes to avoid firewalling issue in the rest of the Lab:
 
@@ -1123,6 +1127,15 @@ I recommend that you run the following commands on **all** nodes to avoid firewa
 But you will probably have many issues with firewalld later on anyway, so it's worth disabling it now on all nodes to avoid solving unrelated issues and integration aspects with Docker iptables management (been there done that for hours !). And believe me, I don't like that :-( (so in our Lab we have peripheral firewall !). For that use:
 
 `#` **`systemctl stop firewalld`**
+
+### On Ubuntu
+
+I recommend that you run the following commands on **all** nodes to avoid firewalling issue in the rest of the Lab:
+
+`#` **`ufw disable`**
+
+
+
 
 Swarm has the notion of worker (hosting containers), manager (able to be also
 a worker and being a backup leader) and Leader (manager being in charge of the
