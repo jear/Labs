@@ -95,7 +95,7 @@ export http_proxy=http://<proxy name or ip>:<proxy port>
 export https_proxy=http://<proxy name or ip>:<proxy port>
 ```
 
- 4. Configure Docker daemon to use the proxy as explained by this document: https://docs.docker.com/engine/admin/systemd/#http-proxy (in short add Environment="HTTP_PROXY=http://proxy.example.com:80/" to your [services] section)
+ 4. Configure Docker daemon to use the proxy as explained by this document: https://docs.docker.com/engine/admin/systemd/#http-proxy (in short add Environment="HTTP_PROXY=http://proxy.example.com:80/" "HTTPS_PROXY=http://proxy.example.com:80/" to your [services] section)
  5. **Set the proxy in each of your Dockerfiles** by adding following text as the 2nd and 3rd line of the Dockerfile.
 
 ```
