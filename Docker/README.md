@@ -123,7 +123,7 @@ If you work on an Ubuntu environment for the Lab, you may want to use apt to do 
 
 `#` **`curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -`**
 
-`#` **`sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu 17.04 stable"`**
+`#` **`sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu zesty stable"`**
 
 Note: (instead of 17.04 use  $(lsb_release -cs) for another version
 
