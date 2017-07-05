@@ -735,7 +735,8 @@ Modify again the Dockerfile to add owncloud to our image:
 ```
 RUN yum install -y tar bzip2
 ADD http://labossi.hpintelco.net/owncloud-7.0.15.tar.bz2 /var/www/html/
-RUN cd /var/www/html/ && tar xvfj owncloud-7.0.15.tar.bz2 && rm -f owncloud-7.0.15.tar.bz2
+# Add this only if before docker engone 17.03
+# RUN cd /var/www/html/ && tar xvfj owncloud-7.0.15.tar.bz2 && rm -f owncloud-7.0.15.tar.bz2
 EOF
 ```
 We can directly point to a URL, Docker will download the content and extract it in place.
