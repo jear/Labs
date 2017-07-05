@@ -115,6 +115,25 @@ Other distributions should be as easy to deal with once the same packages have b
 ### Ubuntu installation
 If you work on an Ubuntu environment for the Lab, you may want to use apt to do the installation of Docker with all its dependencies. As Ubuntu provides an old version of Docker, we will use a PPA providing a more up to date version:
 
+#### 17.04
+
+`#` **`sudo apt-get update`**
+
+`#` **`sudo apt-get install apt-transport-https ca-certificates curl software-properties-common`**
+
+`#` **`curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -`**
+
+`#` **`sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"`**
+
+`#` **`sudo apt-get update`**
+
+`#` **` sudo apt-get install docker-ce`**
+
+#### 14.04
+
 `#` **`apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9`**
 
 `#` **`echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/Docker.list`**
