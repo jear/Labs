@@ -769,8 +769,6 @@ By now you have probably remarked that the ADD order is done each time, without 
 
 `#` **`perl -pi -e 's|ADD http://labossi.hpintelco.net/owncloud-7.0.15.tar.bz2|COPY owncloud-7.0.15.tar.bz2|' Dockerfile`**
 
-`#` **`docker build .`**
-
 `#` **`docker build -t owncloud .`**
 
 Next time you re-run the build, the cache effect is optimal. Also you now have tagged your image and use it by its name:
