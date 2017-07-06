@@ -1294,17 +1294,17 @@ Download the CA from the registry web site:
 
 `#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /etc/pki/ca-trust/source/anchors/ca-registry.crt`**
 
-`#` **`update-ca-trust`##
+`#` **`update-ca-trust`**
 
-`#` **`systemctl restart docker`##
+`#` **`systemctl restart docker`**
 
 ### Ubuntu/Debian
 
 `#` **`curl -L http://lab7-2.labossi.hpintelco.org/ca.crt > /usr/local/share/ca-certificates/ca-registry.crt`**
 
-`#` **`update-ca-certificates`##
+`#` **`update-ca-certificates`**
 
-`#` **`service docker restart`##
+`#` **`service docker restart`**
 
 Check that the registry runs as expected:
 `#` **`curl -L https://<my-registry-fqdn>:5500/v2`**
